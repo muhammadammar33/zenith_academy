@@ -158,12 +158,25 @@ Legacy aliases `CLOUDINARY_*` still work if `MEDIA_*` is unset.
 node -e "require('bcryptjs').hash('your-password', 12).then(console.log)"
 ```
 
-**Next.js env note:** bcrypt hashes contain `$`. In `.env.local`, escape each
-`$` as `\$` so Next does not treat them as variable interpolation. Example:
+Bcrypt hashes contain `$`. Both Next.js and Vercel treat `$` as variable
+interpolation, so the value must be escaped or login returns **401**.
 
-```env
-ADMIN_PASSWORD_HASH="\$2b\$12\$yourActualHashHere"
+| Where | How to store the hash |
+| --- | --- |
+| Local `.env.local` | Escape each `$` as `\$` → `\$2b\$12\$...` |
+| **Vercel** env settings | Escape each `$` as `$$` → `$$2b$$12$$...` |
+
+Example: if the generator prints `$2b$12$abcd...`, set on Vercel:
+
+```text
+ADMIN_PASSWORD_HASH=$$2b$$12$$abcd...
 ```
+
+Also set `ADMIN_EMAIL` to the exact address you sign in with, and
+`ADMIN_SESSION_SECRET` to a random string (≥ 32 characters). After changing
+env vars on Vercel, **redeploy** so the new values load.
+
+Use a random value of at least 32 characters for `ADMIN_SESSION_SECRET`.
 
 ## Local setup
 

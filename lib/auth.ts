@@ -25,12 +25,32 @@ function getSessionSecret() {
   );
 }
 
+/**
+ * Next.js and Vercel treat `$` as env interpolation.
+ * Store hashes with `$$` on Vercel, or `\$` in local `.env.local`.
+ * This restores a normal bcrypt string before compare().
+ */
+function normalizePasswordHash(raw: string) {
+  let hash = raw.trim().replace(/^["']|["']$/g, "");
+  hash = hash.replace(/\\\$/g, "$");
+  hash = hash.replace(/\$\$/g, "$");
+  return hash;
+}
+
 export async function verifyAdminCredentials(email: string, password: string) {
   const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-  const passwordHash = process.env.ADMIN_PASSWORD_HASH;
+  const passwordHash = process.env.ADMIN_PASSWORD_HASH
+    ? normalizePasswordHash(process.env.ADMIN_PASSWORD_HASH)
+    : undefined;
 
   if (!adminEmail || !passwordHash) {
     throw new Error("Admin credentials are not configured.");
+  }
+
+  if (!/^\$2[aby]\$\d{2}\$/.test(passwordHash)) {
+    throw new Error(
+      "ADMIN_PASSWORD_HASH is invalid. On Vercel, escape each $ as $$ (e.g. $$2b$$12$$...)."
+    );
   }
 
   const emailMatches = email.trim().toLowerCase() === adminEmail;
