@@ -1,10 +1,22 @@
+import Image from "next/image";
+
 export default function Header() {
   return (
     <header className="site-header">
       <div className="header-inner">
         <a href="/#top" className="logo" aria-label="Zenith Academy home">
-          <span className="logo-mark">Z</span>
-          <span>Zenith Academy</span>
+          <Image
+            src="/images/logo-icon.png"
+            alt=""
+            width={160}
+            height={160}
+            priority
+            className="brand-logo-icon"
+          />
+          <span className="brand-wordmark">
+            <strong>Zenith</strong>
+            <span>Academy</span>
+          </span>
         </a>
         <nav aria-label="Primary navigation">
           <ul className="nav-list">

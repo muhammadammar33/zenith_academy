@@ -4,11 +4,11 @@ export const domains = [
     slug: "technology",
     image: "https://unsplash.com/photos/HKnvq4krutI/download?force=true",
     imageAlt: "Male students coding on laptops in a classroom",
-    line: "Build practical capability in the tools shaping modern work.",
+    line: "Practice software, automation, data, and digital product workflows.",
     about:
-      "Technology covers the practical systems, tools, and workflows behind modern digital work. It matters because nearly every field now depends on people who can understand software, automation, data, and emerging technical trends.",
+      "Technology courses cover the systems and workflows behind modern digital work. Learners study software, automation, data, and current technical practice.",
     outcome:
-      "Students can expect to gain hands-on confidence, clearer technical judgment, and readiness to keep learning in fast-moving professional environments.",
+      "Build technical judgment through guided practice, then leave with a clear route for continued study and project work.",
     themes: [
       "Software development",
       "Emerging technologies",
@@ -22,11 +22,11 @@ export const domains = [
     slug: "business",
     image: "https://unsplash.com/photos/7cahomYTo1U/download?force=true",
     imageAlt: "Four men working in a business meeting room with laptops",
-    line: "Understand markets, teams, and decisions with real-world clarity.",
+    line: "Study how teams evaluate markets, communicate, and make decisions.",
     about:
-      "Business introduces the ideas and tools students need to understand organizations, markets, and professional decision-making. It is for learners interested in entrepreneurship, management, communication, and practical career readiness.",
+      "Business courses introduce the tools used to assess organizations, markets, and professional decisions. Sessions cover entrepreneurship, management, communication, and business analysis.",
     outcome:
-      "Students leave with sharper workplace thinking, stronger communication habits, and a better sense of how ideas become sustainable work.",
+      "Practice structured analysis, present decisions clearly, and learn how an idea becomes sustainable work.",
     themes: [
       "Entrepreneurship",
       "Management basics",
@@ -36,15 +36,15 @@ export const domains = [
     courses: ["Domain-focused cohorts"],
   },
   {
-    name: "Leadership & Humanities",
+    name: "Leadership and humanities",
     slug: "leadership-humanities",
     image: "https://unsplash.com/photos/uzePm5Hy-Q0/download?force=true",
     imageAlt: "Male instructor speaking to students in a classroom",
-    line: "Grow the judgment, character, and perspective behind meaningful work.",
+    line: "Develop the judgment, character, and communication required to lead.",
     about:
-      "Leadership and humanities focus on the moral, intellectual, and social foundations of effective contribution. This domain is for students who want to think deeply, communicate clearly, and lead with responsibility.",
+      "Leadership and humanities examine the moral, intellectual, and social foundations of responsible action. Learners practice critical thinking, communication, and civic judgment.",
     outcome:
-      "Students develop stronger judgment, personal discipline, civic awareness, and the ability to connect ideas with meaningful action.",
+      "Apply ethical frameworks to decisions, communicate ideas clearly, and connect reflection with responsible action.",
     themes: [
       "Leadership development",
       "Ethics and civic responsibility",
@@ -61,17 +61,17 @@ export const courses = [
     domain: "Technology",
     image: "https://unsplash.com/photos/HKnvq4krutI/download?force=true",
     imageAlt: "Young men using laptops during a coding class",
-    duration: "4-6 weeks",
-    mode: "In-person / Online",
+    duration: "4–6 weeks",
+    mode: "In person / online",
     status: "Upcoming",
     description:
-      "A practical short-course format designed to help students move beyond classroom theory and build useful skills through guided sessions.",
+      "Build field foundations through 6 guided sessions, applied exercises, and a final case or project.",
     about:
-      "This course format closes the gap between routine academic study and the practical knowledge students need in modern fields. Sessions are built around direct explanation, field examples, guided practice, and a concrete sense of where the skill is used professionally.",
+      "Practicing professionals connect each concept to current field workflows. Every session combines direct instruction, a worked example, and guided practice.",
     takeaway:
-      "Students walk away with clearer foundations, applied exposure, and a roadmap for continued learning in the selected domain.",
+      "Leave with completed practice work, a foundation in the selected field, and a next-step learning plan.",
     audience:
-      "This is suitable for university and college students, early-career learners, and motivated young professionals who want structured weekend learning without committing to a long program.",
+      "For university and college students, early-career practitioners, and young professionals seeking structured weekend study.",
     prerequisites: ["Basic computer literacy", "Interest in the selected domain"],
     sessions: [
       "Topic foundation",
@@ -81,25 +81,25 @@ export const courses = [
       "Project or case work",
       "Review and next steps",
     ],
-    fee: "PKR [2000]",
+    fee: "PKR 2,000",
     seats: "Limited",
   },
   {
     title: "Practitioner-led workshops",
-    domain: "Leadership & Humanities",
+    domain: "Leadership and humanities",
     image: "https://unsplash.com/photos/uzePm5Hy-Q0/download?force=true",
     imageAlt: "Male instructor leading a classroom discussion",
     duration: "6 sessions",
     mode: "Weekend",
     status: "Opening soon",
     description:
-      "Focused workshops taught by experienced practitioners who connect concepts with real field experience.",
+      "Work through current field examples with a practitioner across 6 focused weekend sessions.",
     about:
-      "These workshops are designed for students who want exposure to how ideas, tools, and decisions work outside textbooks. Each session centers on a field-relevant theme and gives students practical vocabulary, examples, and direction.",
+      "Each workshop examines how a practitioner uses ideas, tools, and judgment outside the classroom. Sessions combine field examples, discussion, and an applied student exercise.",
     takeaway:
-      "Students gain perspective, usable frameworks, and confidence to explore a field with more seriousness.",
+      "Leave with a working framework, relevant vocabulary, and direct feedback on an applied exercise.",
     audience:
-      "Best for students exploring career directions, leadership roles, creative work, or professional development opportunities.",
+      "For students exploring a profession, preparing for leadership, or strengthening a current area of study.",
     prerequisites: ["No prior background required"],
     sessions: [
       "Field overview",
@@ -109,7 +109,7 @@ export const courses = [
       "Student exercise",
       "Reflection and guidance",
     ],
-    fee: "PKR [2500]",
+    fee: "PKR 2,500",
     seats: "Limited",
   },
   {
@@ -121,13 +121,13 @@ export const courses = [
     mode: "Hybrid",
     status: "Upcoming",
     description:
-      "A cohort-based learning path organized around one domain and its most useful themes.",
+      "Study one domain with a cohort through current trends, professional pathways, and an applied case.",
     about:
-      "This format helps students understand a field as a connected landscape rather than isolated topics. Learners explore the domain, key sub-fields, professional expectations, and the skills that matter most right now.",
+      "The cohort maps a field as a connected professional landscape. Learners examine its sub-fields, current expectations, and the skills used in active roles.",
     takeaway:
-      "Students leave with domain awareness, practical next steps, and a clearer path for future study or work.",
+      "Leave with a field map, a completed case, and specific next steps for study, internships, or project work.",
     audience:
-      "Ideal for students choosing a direction, preparing for internships, or looking for guided exposure before deeper specialization.",
+      "For students choosing a direction, preparing for internships, or evaluating a deeper specialization.",
     prerequisites: ["Curiosity about the domain", "Commitment to weekend sessions"],
     sessions: [
       "Domain introduction",
@@ -137,14 +137,14 @@ export const courses = [
       "Applied case",
       "Portfolio of next steps",
     ],
-    fee: "PKR [3000]",
+    fee: "PKR 3,000",
     seats: "Limited",
   },
 ];
 
 export const registrationSections = [
   {
-    title: "Personal Information",
+    title: "Personal information",
     items: [
       "Full name",
       "CNIC number for identity verification and certification purposes",
@@ -155,14 +155,19 @@ export const registrationSections = [
     ],
   },
   {
-    title: "Academic Information",
-    items: ["Institution name", "Degree program", "Current year of study"],
+    title: "Academic information",
+    items: [
+      "Education level: school, college, graduation, or post graduation",
+      "School or college: institution name and class",
+      "Graduation: institution, degree program, and semester",
+      "Post graduation: program type (MS, PhD, and related), field, and current stage",
+    ],
   },
   {
-    title: "Course Selection",
+    title: "Course selection",
     items: [
-      "Select a Course dropdown listing currently open courses organized by domain",
-      "Selected course auto-populates fee and mode details so the student knows exactly what they are signing up for",
+      "Choose from currently open courses, organized by domain",
+      "Review the course fee and delivery mode before submitting",
     ],
   },
   {

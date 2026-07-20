@@ -1,7 +1,13 @@
 import Image from "next/image";
-import { courses, domains, registrationSections, siteImages } from "./content";
+import { registrationSections, siteImages } from "./content";
+import { getPublicCourses, getPublicDomains } from "../lib/public-data";
 
-export default function Home() {
+export default async function Home() {
+  const [courses, domains] = await Promise.all([
+    getPublicCourses(),
+    getPublicDomains(),
+  ]);
+
   return (
     <main id="top">
       <section className="hero-section">
@@ -15,18 +21,18 @@ export default function Home() {
         />
         <div className="hero-overlay" />
         <div className="hero-content">
-          <p className="eyebrow">Weekend professional learning</p>
+          <p className="eyebrow">Expert-led weekend learning</p>
           <h1>Zenith Academy</h1>
           <p className="lead">
-            Practical, high-quality short courses for students and young
-            professionals who want learning beyond routine coursework.
+            Build current, field-tested skills with practicing experts through
+            focused weekend courses in Islamabad.
           </p>
           <div className="hero-actions">
             <a href="/courses" className="button button-primary">
-              View Courses
+              View courses
             </a>
             <a href="/registration" className="button button-secondary">
-              Register Interest
+              Register interest
             </a>
           </div>
         </div>
@@ -35,10 +41,10 @@ export default function Home() {
       <section id="about" className="section-band section-intro">
         <div className="section-inner intro-grid">
           <div>
-            <p className="eyebrow">What is Zenith Academy?</p>
+            <p className="eyebrow">About Zenith Academy</p>
             <h2>
               A professional learning platform operated by{" "}
-              <strong className="text-sky-400">Islami Jamiat Talaba</strong>,
+              <strong className="brand-accent">Islami Jamiat Talaba</strong>,
               Islamabad Chapter.
             </h2>
           </div>
@@ -53,16 +59,14 @@ export default function Home() {
               />
             </div>
             <p>
-              Zenith offers short, weekend-based courses for students and young
-              professionals who want practical, high-quality learning beyond the
-              classroom.
+              Zenith offers expert-led weekend courses for students and young
+              professionals who want applied learning beyond the classroom.
             </p>
             <br />
             <p>
-              Courses are designed and taught by experienced practitioners
-              working in their respective fields, with a focus on relevant
-              skills, emerging trends, and real-world application across
-              technology, business, sciences, leadership, and the humanities.
+              Practicing professionals teach current tools, field workflows,
+              and applied methods across technology, business, leadership, and
+              the humanities.
             </p>
           </div>
         </div>
@@ -71,10 +75,10 @@ export default function Home() {
       <section className="section-band vision-band">
         <div className="section-inner vision-grid">
           <div className="statement-panel">
-            <p className="eyebrow">Vision Statement</p>
+            <p className="eyebrow">Vision</p>
             <h2>
               To build a generation excellent in character and distinguished in
-              their fields, united in their contribution to the Muslim Ummah.
+              their fields, contributing to the growth of the Muslim Ummah.
             </h2>
           </div>
           <div className="meaning-panel">
@@ -98,10 +102,57 @@ export default function Home() {
             </p>
             <br />
             <p>
-              Second, it represents our belief that every student should strive
-              to reach their highest potential, excelling in their own field
-              according to their strengths, interests, and circumstances.
+              Second, it calls each student to pursue excellence in a field
+              suited to their strengths, interests, and circumstances.
             </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="objectives" className="section-band muted-band">
+        <div className="section-inner">
+          <div className="section-heading heading-row">
+            <div>
+              <p className="eyebrow">Our objectives</p>
+              <h2>Learning that strengthens skill, community, and continuity.</h2>
+            </div>
+            <p>
+              Zenith combines expert instruction, field-based communities, and
+              a sustainable model that can serve students over the long term.
+            </p>
+          </div>
+          <div className="objectives-grid">
+            <article className="objective-card">
+              <span className="objective-number">01</span>
+              <span className="card-kicker" lang="ur" dir="rtl">
+                تربیتی
+              </span>
+              <h3>Skill building</h3>
+              <p>
+                Establish a source of quality learning led by practicing
+                experts.
+              </p>
+            </article>
+            <article className="objective-card">
+              <span className="objective-number">02</span>
+              <span className="card-kicker" lang="ur" dir="rtl">
+                دعوتی
+              </span>
+              <h3>Field-based engagement</h3>
+              <p>
+                Build field-based communities where students learn, connect,
+                and grow their professional networks.
+              </p>
+            </article>
+            <article className="objective-card">
+              <span className="objective-number">03</span>
+              <span className="card-kicker">Sustainable growth</span>
+              <h3>Revenue generation</h3>
+              <p>
+                Maintain a responsible revenue model that keeps the academy
+                self-sustaining.
+              </p>
+            </article>
           </div>
         </div>
       </section>
@@ -109,7 +160,7 @@ export default function Home() {
       <section id="domains" className="section-band">
         <div className="section-inner">
           <div className="section-heading">
-            <p className="eyebrow">Domain Details</p>
+            <p className="eyebrow">Learning domains</p>
             <h2>
               Clear learning tracks for students with different ambitions.
             </h2>
@@ -147,7 +198,7 @@ export default function Home() {
         <div className="section-inner">
           <div className="section-heading heading-row">
             <div>
-              <p className="eyebrow">Course Details</p>
+              <p className="eyebrow">Courses</p>
               <h2>Weekend courses structured around outcomes.</h2>
             </div>
             <p>
@@ -177,7 +228,7 @@ export default function Home() {
           </div>
 
           <a href="/courses" className="button button-primary section-action">
-            Open Course Details
+            Explore courses
           </a>
 
           <div className="visual-strip">
@@ -197,11 +248,11 @@ export default function Home() {
           <div className="course-detail-grid">
             <article className="detail-block">
               <p className="eyebrow">About each course</p>
-              <h3>What students can expect</h3>
+              <h3>What you will practice</h3>
               <p>
-                Each course page should explain the field, why it matters now,
-                the gap it helps students close, and what a learner walks away
-                with: a skill, a mindset, a product, or a certificate.
+                Review the field, practice its current workflows, and complete
+                a case or project. Each course ends with clear next steps and a
+                certificate for successful completion.
               </p>
             </article>
             <article className="detail-block">
@@ -223,7 +274,7 @@ export default function Home() {
       <section id="instructors" className="section-band">
         <div className="section-inner instructor-layout">
           <div className="section-heading">
-            <p className="eyebrow">Your Instructors</p>
+            <p className="eyebrow">Instructors</p>
             <h2>Practitioners who teach from field experience.</h2>
           </div>
           <div className="text-stack">
@@ -237,9 +288,8 @@ export default function Home() {
               />
             </div>
             <p>
-              Instructor profiles should focus on current roles, real work,
-              relevant projects, and the field credibility a student would want
-              in the room.
+              Learn from practicing professionals whose current roles and
+              projects match the subject they teach.
             </p>
             <p>
               Upon successful completion, students receive a Zenith Academy
@@ -254,12 +304,11 @@ export default function Home() {
           <div>
             <p className="eyebrow">Registration</p>
             <h2>
-              Collect the right details without making enrollment feel heavy.
+              Join the next expert-led cohort.
             </h2>
             <p>
-              The form flow below matches the PPTX requirements: personal
-              information, academic information, course selection, and payment
-              proof.
+              Share your personal and academic details, select a course, and
+              upload payment proof in one focused form.
             </p>
             <ul className="check-list">
               {registrationSections.map((section) => (
@@ -267,10 +316,10 @@ export default function Home() {
               ))}
             </ul>
             <a href="/registration" className="button button-primary">
-              Open Registration
+              Open registration
             </a>
           </div>
-          <form className="registration-form">
+          <div className="registration-form">
             <div className="form-image">
               <Image
                 src={siteImages.registration}
@@ -307,10 +356,10 @@ export default function Home() {
               Payment receipt
               <input type="file" />
             </label>
-            <button className="button button-primary" type="submit">
-              Submit Registration
-            </button>
-          </form>
+            <a className="button button-primary" href="/registration">
+              Complete registration
+            </a>
+          </div>
         </div>
       </section>
 
@@ -322,7 +371,7 @@ export default function Home() {
           </div>
           <div>
             <p>
-              <span className="font-bold text-sky-400">
+              <span className="brand-accent">
                 Islami Jamiat Talaba
               </span>{" "}
               is Pakistan&apos;s largest and longest-running student
@@ -334,9 +383,9 @@ export default function Home() {
             <br />
             <p>
               Zenith is part of that broader mission. It provides a structured
-              and professional platform through which students can access
-              quality learning, connect with experienced mentors, and build
-              networks that support both personal and professional growth.
+              platform where students learn from experienced practitioners,
+              meet peers in their fields, and build lasting professional
+              networks.
             </p>
           </div>
         </div>

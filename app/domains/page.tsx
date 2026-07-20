@@ -1,7 +1,12 @@
 import Image from "next/image";
-import { courses, domains } from "../content";
+import { getPublicCourses, getPublicDomains } from "../../lib/public-data";
 
-export default function DomainsPage() {
+export default async function DomainsPage() {
+  const [courses, domains] = await Promise.all([
+    getPublicCourses(),
+    getPublicDomains(),
+  ]);
+
   return (
     <main>
       <section className="page-hero">
@@ -15,12 +20,11 @@ export default function DomainsPage() {
         />
         <div className="page-hero-overlay" />
         <div className="section-inner page-hero-content">
-          <p className="eyebrow">Domain Details</p>
+          <p className="eyebrow">Learning domains</p>
           <h1>Domains that give students a clear learning direction.</h1>
           <p>
-            Each domain explains what the field covers, why it matters right
-            now, what students can expect to gain, and which courses belong to
-            that learning track.
+            Compare the workflows, outcomes, and current courses in each
+            learning track.
           </p>
         </div>
       </section>
@@ -31,12 +35,12 @@ export default function DomainsPage() {
             <article className="detail-page-card" key={domain.slug}>
               <div className="detail-page-header">
                 <div>
-                  <span className="card-kicker">Domain Name</span>
+                  <span className="card-kicker">Domain</span>
                   <h2>{domain.name}</h2>
                   <p className="strong-line">{domain.line}</p>
                 </div>
                 <a className="button button-primary" href="/courses">
-                  View Courses
+                  View courses
                 </a>
               </div>
 
@@ -51,12 +55,12 @@ export default function DomainsPage() {
                       sizes="(max-width: 900px) 100vw, 60vw"
                     />
                   </div>
-                  <h3>About This Domain</h3>
+                  <h3>About this domain</h3>
                   <p>{domain.about}</p>
                   <p>{domain.outcome}</p>
                 </div>
                 <div>
-                  <h3>What You&apos;ll Find Here</h3>
+                  <h3>What you&apos;ll find here</h3>
                   <ul className="theme-list">
                     {domain.themes.map((theme) => (
                       <li key={theme}>{theme}</li>

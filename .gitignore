@@ -26,7 +26,15 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # local env files
+.env
 .env*.local
+
+# vendor font source packages (bundled copies live in app/fonts)
+/Inter
+/Space_Grotesk
+
+# generated database client
+/app/generated/prisma
 
 # vercel
 .vercel

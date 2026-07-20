@@ -1,7 +1,9 @@
 import Image from "next/image";
-import { courses } from "../content";
+import { getPublicCourses } from "../../lib/public-data";
 
-export default function CoursesPage() {
+export default async function CoursesPage() {
+  const courses = await getPublicCourses();
+
   return (
     <main>
       <section className="page-hero">
@@ -15,12 +17,11 @@ export default function CoursesPage() {
         />
         <div className="page-hero-overlay" />
         <div className="section-inner page-hero-content">
-          <p className="eyebrow">Course Details</p>
-          <h1>Course pages built around clarity, outcomes, and enrollment.</h1>
+          <p className="eyebrow">Courses</p>
+          <h1>Choose a course built around applied outcomes.</h1>
           <p>
-            Each course explains what it equips students to do, who it is for,
-            what background is needed, how the sessions break down, and what
-            certification students receive.
+            Compare the audience, prerequisites, 6-session plan, fee, and
+            certificate before you register.
           </p>
         </div>
       </section>
@@ -31,7 +32,7 @@ export default function CoursesPage() {
             <article className="detail-page-card" key={course.title}>
               <div className="detail-page-header">
                 <div>
-                  <span className="card-kicker">Course Title</span>
+                  <span className="card-kicker">Course</span>
                   <h2>{course.title}</h2>
                   <p className="strong-line">{course.description}</p>
                   <dl className="meta-list">
@@ -50,7 +51,7 @@ export default function CoursesPage() {
                   </dl>
                 </div>
                 <a className="button button-primary" href="/registration">
-                  Enroll Now
+                  Enroll now
                 </a>
               </div>
 
@@ -65,11 +66,11 @@ export default function CoursesPage() {
                       sizes="(max-width: 900px) 100vw, 58vw"
                     />
                   </div>
-                  <h3>About This Course</h3>
+                  <h3>About this course</h3>
                   <p>{course.about}</p>
                   <p>{course.takeaway}</p>
 
-                  <h3>Who Is This For?</h3>
+                  <h3>Who is this for?</h3>
                   <p>{course.audience}</p>
 
                   <h3>Prerequisites</h3>
@@ -81,11 +82,10 @@ export default function CoursesPage() {
                 </div>
 
                 <aside className="side-panel">
-                  <h3>Your Instructors</h3>
+                  <h3>Instructors</h3>
                   <p>
-                    Instructor profiles will highlight current roles, field
-                    credibility, real work, and practical experience relevant
-                    to this course.
+                    Learn from practicing professionals whose current roles and
+                    projects match this course.
                   </p>
 
                   <h3>Certification</h3>
@@ -99,7 +99,7 @@ export default function CoursesPage() {
                   <p>
                     <strong>Fee:</strong> {course.fee}
                     <br />
-                    <strong>Seats Available:</strong> {course.seats}
+                    <strong>Seats available:</strong> {course.seats}
                   </p>
                 </aside>
               </div>
