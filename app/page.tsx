@@ -312,8 +312,8 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section-band jamiat-band" data-animate="fade">
-        <div className="section-inner intro-grid">
+      <section className="section-band jamiat-band">
+        <div className="section-inner intro-grid" data-animate="fade">
           <div>
             <p className="eyebrow">About Jamiat</p>
             <h2>A student organization with a national educational mission.</h2>
