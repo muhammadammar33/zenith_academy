@@ -9,11 +9,20 @@ import { prisma } from "./prisma";
 const fallbackCourseData = fallbackCourses.map((course) => ({
   ...course,
   id: "",
+  slug: course.title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, ""),
+}));
+
+const fallbackDomainData = fallbackDomains.map((domain) => ({
+  ...domain,
+  id: "",
 }));
 
 export async function getPublicDomains() {
   if (!process.env.DATABASE_URL) {
-    return fallbackDomains;
+    return fallbackDomainData;
   }
 
   try {
@@ -30,6 +39,7 @@ export async function getPublicDomains() {
     });
 
     return domains.map((domain) => ({
+      id: domain.id,
       name: domain.name,
       slug: domain.slug,
       image: domain.imageUrl,
@@ -41,7 +51,7 @@ export async function getPublicDomains() {
       courses: domain.courses.map((course) => course.title),
     }));
   } catch {
-    return fallbackDomains;
+    return fallbackDomainData;
   }
 }
 
@@ -59,6 +69,7 @@ export async function getPublicCourses() {
 
     return courses.map((course) => ({
       id: course.id,
+      slug: course.slug,
       title: course.title,
       domain: course.domain.name,
       image: course.imageUrl,

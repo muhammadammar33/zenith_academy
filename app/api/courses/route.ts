@@ -13,6 +13,7 @@ export async function GET() {
   return NextResponse.json({
     courses: courses.map((course) => ({
       id: course.id,
+      slug: course.slug,
       title: course.title,
       domain: course.domain,
       fee: course.fee,

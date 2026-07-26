@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { registrationSections, siteImages } from "../content";
 import {
   COLLEGE_CLASSES,
@@ -14,6 +15,7 @@ import {
   isSchoolOrCollege,
 } from "../../lib/education";
 import { useToast } from "../../components/ToastProvider";
+import DomainIcon from "../../components/DomainIcon";
 
 const paymentDetails = {
   "Bank transfer": {
@@ -46,6 +48,7 @@ type PaymentMethod = keyof typeof paymentDetails;
 
 type CourseOption = {
   id: string;
+  slug: string;
   title: string;
   domain: string;
   fee: string;
@@ -60,7 +63,27 @@ type UploadedReceipt = {
 };
 
 export default function RegistrationPage() {
+  return (
+    <Suspense
+      fallback={
+        <main>
+          <section className="section-band">
+            <div className="section-inner">
+              <p>Loading registration…</p>
+            </div>
+          </section>
+        </main>
+      }
+    >
+      <RegistrationForm />
+    </Suspense>
+  );
+}
+
+function RegistrationForm() {
   const { notify } = useToast();
+  const searchParams = useSearchParams();
+  const courseParam = searchParams.get("course")?.trim() ?? "";
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [selectedCourseTitle, setSelectedCourseTitle] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
@@ -73,6 +96,7 @@ export default function RegistrationPage() {
   const [educationLevel, setEducationLevel] = useState<EducationLevel | "">("");
   const [studyYear, setStudyYear] = useState("");
   const [programType, setProgramType] = useState("");
+  const [joinCommunity, setJoinCommunity] = useState(true);
 
   useEffect(() => {
     void fetch("/api/courses")
@@ -89,6 +113,21 @@ export default function RegistrationPage() {
           setRegistrationOpen(result.registration.isOpen);
           setPaymentInstructions(result.registration.paymentInstructions);
           setRegistrationReady(true);
+
+          if (!courseParam) {
+            return;
+          }
+
+          const matched = result.courses.find(
+            (course) =>
+              course.id === courseParam ||
+              course.slug === courseParam ||
+              course.title.toLowerCase() === courseParam.toLowerCase()
+          );
+
+          if (matched?.id) {
+            setSelectedCourseTitle(matched.id);
+          }
         }
       )
       .catch(() => {
@@ -99,7 +138,7 @@ export default function RegistrationPage() {
         });
         setRegistrationReady(true);
       });
-  }, [notify]);
+  }, [courseParam, notify]);
 
   const selectedCourse = useMemo(
     () => courses.find((course) => course.id === selectedCourseTitle),
@@ -240,6 +279,7 @@ export default function RegistrationPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...registrationData,
+        joinCommunity,
         receipt: {
           publicId: receipt.publicId,
           resourceType: receipt.resourceType,
@@ -277,6 +317,7 @@ export default function RegistrationPage() {
     setEducationLevel("");
     setStudyYear("");
     setProgramType("");
+    setJoinCommunity(true);
   }
 
   return (
@@ -291,7 +332,7 @@ export default function RegistrationPage() {
           className="page-hero-bg"
         />
         <div className="page-hero-overlay" />
-        <div className="section-inner page-hero-content">
+        <div className="section-inner page-hero-content" data-animate="hero">
           <p className="eyebrow">Registration</p>
           <h1>Register for a Zenith Academy course.</h1>
           <p>
@@ -303,7 +344,7 @@ export default function RegistrationPage() {
 
       <section className="section-band registration-band">
         <div className="section-inner registration-detail-grid">
-          <div className="registration-copy">
+          <div className="registration-copy" data-animate="fade">
             <div className="detail-media">
               <Image
                 src={siteImages.books}
@@ -325,7 +366,11 @@ export default function RegistrationPage() {
             ))}
           </div>
 
-          <form className="registration-form full-form" onSubmit={handleSubmit}>
+          <form
+            className="registration-form full-form"
+            onSubmit={handleSubmit}
+            data-animate="fade"
+          >
             {/* <div className="form-image">
               <Image
                 src={siteImages.registration}
@@ -556,6 +601,32 @@ export default function RegistrationPage() {
                     : "Shown after course selection"}
                 </strong>
               </div>
+              {selectedCourse ? (
+                <label
+                  className={
+                    joinCommunity
+                      ? "community-opt-in is-selected"
+                      : "community-opt-in"
+                  }
+                >
+                  <DomainIcon
+                    name={selectedCourse.domain}
+                    className="community-opt-icon"
+                  />
+                  <span className="community-opt-copy">
+                    <strong>Join the {selectedCourse.domain} community</strong>
+                    <small>
+                      Connect with peers in this field while you register for
+                      the course.
+                    </small>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={joinCommunity}
+                    onChange={(event) => setJoinCommunity(event.target.checked)}
+                  />
+                </label>
+              ) : null}
             </div>
 
             <div className="form-section">

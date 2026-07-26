@@ -36,6 +36,10 @@ export const registrationSchema = z
     studyYear: requiredText.max(50),
     courseId: z.string().cuid(),
     paymentMethod: z.enum(["Bank transfer", "JazzCash", "EasyPaisa"]),
+    joinCommunity: z
+      .union([z.boolean(), z.literal("true"), z.literal("false"), z.literal("on")])
+      .optional()
+      .transform((value) => value === true || value === "true" || value === "on"),
   })
   .superRefine((data, context) => {
     if (isSchoolOrCollege(data.educationLevel)) {
@@ -192,4 +196,12 @@ export const siteSettingsSchema = z.object({
       paymentInstructions: z.string().trim().max(10_000),
     })
     .optional(),
+});
+
+export const communityInterestSchema = z.object({
+  fullName: requiredText.max(120),
+  email: z.string().trim().email(),
+  phone: z.string().trim().min(10).max(30),
+  domainId: z.string().cuid(),
+  notes: z.string().trim().max(2_000).optional().nullable(),
 });

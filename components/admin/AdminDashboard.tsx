@@ -53,8 +53,20 @@ type Registration = {
   courseTitle: string;
   paymentMethod: string;
   receiptUrl: string;
+  joinCommunity: boolean;
   status: "PENDING" | "CONFIRMED" | "REJECTED";
   adminNotes: string;
+  createdAt: string;
+};
+
+type CommunityInterest = {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  domainName: string;
+  source: "REGISTRATION" | "COMMUNITY_FORM";
+  notes: string | null;
   createdAt: string;
 };
 
@@ -79,6 +91,7 @@ type DashboardProps = {
   courses: Course[];
   domains: Domain[];
   registrations: Registration[];
+  communityInterests: CommunityInterest[];
   media: MediaAsset[];
   emailLogs: EmailLog[];
   settings: Record<string, unknown>;
@@ -124,6 +137,7 @@ const emptyCourse = {
 type AdminTab =
   | "overview"
   | "registrations"
+  | "communities"
   | "courses"
   | "domains"
   | "media"
@@ -133,6 +147,7 @@ type AdminTab =
 const ADMIN_TABS: { id: AdminTab; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "registrations", label: "Students" },
+  { id: "communities", label: "Communities" },
   { id: "courses", label: "Courses" },
   { id: "domains", label: "Domains" },
   { id: "media", label: "Media" },
@@ -491,6 +506,16 @@ export default function AdminDashboard(props: DashboardProps) {
                 <button
                   type="button"
                   className="admin-metric-link"
+                  onClick={() => setActiveTab("communities")}
+                >
+                  <span>Community interests</span>
+                  <strong>{props.communityInterests.length}</strong>
+                </button>
+              </article>
+              <article>
+                <button
+                  type="button"
+                  className="admin-metric-link"
                   onClick={() => setActiveTab("domains")}
                 >
                   <span>Learning domains</span>
@@ -633,6 +658,7 @@ export default function AdminDashboard(props: DashboardProps) {
                 <tr>
                   <th>Student</th>
                   <th>Course</th>
+                  <th>Community</th>
                   <th>Payment</th>
                   <th>Submitted</th>
                   <th>Review</th>
@@ -653,6 +679,7 @@ export default function AdminDashboard(props: DashboardProps) {
                       <small>{registration.studyYear}</small>
                     </td>
                     <td>{registration.courseTitle}</td>
+                    <td>{registration.joinCommunity ? "Yes" : "No"}</td>
                     <td>
                       <div className="payment-cell">
                         <span className="payment-method-chip">
@@ -690,11 +717,65 @@ export default function AdminDashboard(props: DashboardProps) {
                 ))}
                 {!filteredRegistrations.length ? (
                   <tr>
-                    <td colSpan={5}>
+                    <td colSpan={6}>
                       {props.registrations.length
                         ? "No students match the selected filters."
                         : "No registrations yet."}
                     </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        ) : null}
+
+        {activeTab === "communities" ? (
+        <section
+          className="admin-section"
+          role="tabpanel"
+          id="admin-panel-communities"
+          aria-labelledby="admin-tab-communities"
+        >
+          <div className="admin-section-heading">
+            <div>
+              <p className="eyebrow">Communities</p>
+              <h2>People who asked to join a domain community</h2>
+              <p>{props.communityInterests.length} interests recorded</p>
+            </div>
+          </div>
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Person</th>
+                  <th>Domain</th>
+                  <th>Source</th>
+                  <th>Note</th>
+                  <th>Submitted</th>
+                </tr>
+              </thead>
+              <tbody>
+                {props.communityInterests.map((interest) => (
+                  <tr key={interest.id}>
+                    <td>
+                      <strong>{interest.fullName}</strong>
+                      <small>{interest.email}</small>
+                      <small>{interest.phone}</small>
+                    </td>
+                    <td>{interest.domainName}</td>
+                    <td>
+                      {interest.source === "REGISTRATION"
+                        ? "Course registration"
+                        : "Community form"}
+                    </td>
+                    <td>{interest.notes || "—"}</td>
+                    <td>{new Date(interest.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+                {!props.communityInterests.length ? (
+                  <tr>
+                    <td colSpan={5}>No community interests yet.</td>
                   </tr>
                 ) : null}
               </tbody>

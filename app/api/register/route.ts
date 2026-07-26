@@ -63,7 +63,14 @@ export async function POST(request: Request) {
 
   const course = await prisma.course.findFirst({
     where: { id: parsed.data.courseId, isPublished: true },
-    select: { id: true, title: true, fee: true, mode: true },
+    select: {
+      id: true,
+      title: true,
+      fee: true,
+      mode: true,
+      domainId: true,
+      domain: { select: { id: true, name: true } },
+    },
   });
 
   if (!course) {
@@ -78,17 +85,43 @@ export async function POST(request: Request) {
       receipt.data.publicId,
       receipt.data.resourceType
     );
+    const joinCommunity = Boolean(parsed.data.joinCommunity);
     const registration = await prisma.registration.create({
       data: {
-        ...parsed.data,
+        fullName: parsed.data.fullName,
+        cnic: parsed.data.cnic,
+        dateOfBirth: parsed.data.dateOfBirth,
+        gender: parsed.data.gender,
+        phone: parsed.data.phone,
+        email: parsed.data.email,
+        educationLevel: parsed.data.educationLevel,
+        institution: parsed.data.institution,
+        degreeProgram: parsed.data.degreeProgram,
+        studyYear: parsed.data.studyYear,
+        paymentMethod: parsed.data.paymentMethod,
         courseId: course.id,
         courseTitle: course.title,
         courseFee: course.fee,
         courseMode: course.mode,
         receiptUrl: upload.secureUrl,
         receiptPublicId: upload.publicId,
+        joinCommunity,
       },
     });
+
+    if (joinCommunity) {
+      await prisma.communityInterest.create({
+        data: {
+          fullName: registration.fullName,
+          email: registration.email,
+          phone: registration.phone,
+          domainId: course.domain.id,
+          domainName: course.domain.name,
+          source: "REGISTRATION",
+          registrationId: registration.id,
+        },
+      });
+    }
 
     await sendRegistrationEmails({
       fullName: registration.fullName,

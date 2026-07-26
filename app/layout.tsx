@@ -4,6 +4,8 @@ import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { ToastProvider } from "../components/ToastProvider";
+import SmoothScroll from "../components/SmoothScroll";
+import PageMotion from "../components/PageMotion";
 
 const inter = localFont({
   src: "./fonts/Inter-Variable.ttf",
@@ -47,11 +49,13 @@ export default function RootLayout({
       className={`${inter.variable} ${spaceGrotesk.variable}`}
     >
       <body>
-        <ToastProvider>
-          <Header />
-          {children}
-          <Footer />
-        </ToastProvider>
+        <SmoothScroll>
+          <ToastProvider>
+            <Header />
+            <PageMotion>{children}</PageMotion>
+            <Footer />
+          </ToastProvider>
+        </SmoothScroll>
       </body>
     </html>
   );

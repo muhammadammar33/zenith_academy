@@ -168,6 +168,7 @@ export const registrationSections = [
     items: [
       "Choose from currently open courses, organized by domain",
       "Review the course fee and delivery mode before submitting",
+      "Optional: join the domain community while registering",
     ],
   },
   {
@@ -176,6 +177,25 @@ export const registrationSections = [
       "Fee amount displayed clearly from the selected course",
       "Payment method such as bank transfer, JazzCash, EasyPaisa, or active channels",
       "Upload field for payment receipt or transaction screenshot",
+    ],
+  },
+];
+
+export const communitySections = [
+  {
+    title: "What communities are",
+    items: [
+      "Field-based groups for students and young professionals",
+      "Space to meet peers across Technology, Business, and Leadership",
+      "Separate from course enrollment — join even if you are not registering yet",
+    ],
+  },
+  {
+    title: "How to join",
+    items: [
+      "Choose the domain community that matches your interests",
+      "Share your name, email, and phone so the academy can reach you",
+      "Or join while registering for a course through the registration form",
     ],
   },
 ];

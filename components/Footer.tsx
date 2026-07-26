@@ -1,5 +1,13 @@
 import Image from "next/image";
 
+const FOOTER_LINKS = [
+  { href: "/#about", label: "About" },
+  { href: "/domains", label: "Domains" },
+  { href: "/courses", label: "Courses" },
+  { href: "/communities", label: "Communities" },
+  { href: "/registration", label: "Register" },
+] as const;
+
 export default function Footer() {
   return (
     <footer className="site-footer">
@@ -21,17 +29,13 @@ export default function Footer() {
             </p>
           </div>
         </div>
-        <div className="footer-links">
-          <a className="nav-link" href="/#about">
-            About
-          </a>
-          <a className="nav-link" href="/courses">
-            Courses
-          </a>
-          <a className="nav-link" href="/registration">
-            Register
-          </a>
-        </div>
+        <nav className="footer-links" aria-label="Footer">
+          {FOOTER_LINKS.map((link) => (
+            <a className="nav-link" href={link.href} key={link.href}>
+              {link.label}
+            </a>
+          ))}
+        </nav>
       </div>
     </footer>
   );

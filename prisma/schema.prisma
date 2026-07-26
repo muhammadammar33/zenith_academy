@@ -34,7 +34,8 @@ model Domain {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  courses Course[]
+  courses             Course[]
+  communityInterests  CommunityInterest[]
 
   @@index([isPublished, sortOrder])
 }
@@ -87,6 +88,7 @@ model Registration {
   paymentMethod   String
   receiptUrl      String
   receiptPublicId String
+  joinCommunity   Boolean            @default(false)
   status          RegistrationStatus @default(PENDING)
   adminNotes      String?            @db.Text
   createdAt       DateTime           @default(now())
@@ -98,6 +100,30 @@ model Registration {
   @@index([status, createdAt])
   @@index([email])
   @@index([courseId])
+}
+
+enum CommunityInterestSource {
+  REGISTRATION
+  COMMUNITY_FORM
+}
+
+model CommunityInterest {
+  id             String                   @id @default(cuid())
+  fullName       String
+  email          String
+  phone          String
+  domainName     String
+  source         CommunityInterestSource  @default(COMMUNITY_FORM)
+  registrationId String?
+  notes          String?                  @db.Text
+  createdAt      DateTime                 @default(now())
+
+  domainId String
+  domain   Domain @relation(fields: [domainId], references: [id], onDelete: Restrict)
+
+  @@index([domainId, createdAt])
+  @@index([email])
+  @@index([createdAt])
 }
 
 model MediaAsset {

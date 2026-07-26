@@ -219,7 +219,18 @@ npm run dev
 
 `postinstall` runs `prisma generate` automatically after `npm install`.
 
-## Production checklist
+## Communities
+
+Domain communities let people connect by field (Technology, Business,
+Leadership) with or without course enrollment.
+
+- Homepage section: `/#communities`
+- Standalone join form: `/communities` (optional `?domain=technology`)
+- Course registration includes a “join this domain community” checkbox
+- Course enroll links open `/registration?course=<slug>` with the course preselected
+- Admin → **Communities** lists interests from both the community form and course registration
+
+After pull, run `npm run db:deploy` so the communities migration applies.
 
 1. Set every required variable from `.env.example` on the host (never ship
    `.env.local`).

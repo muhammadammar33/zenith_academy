@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { getPublicCourses, getPublicDomains } from "../../lib/public-data";
+import DomainIcon from "../../components/DomainIcon";
 
 export default async function DomainsPage() {
   const [courses, domains] = await Promise.all([
@@ -11,86 +12,119 @@ export default async function DomainsPage() {
     <main>
       <section className="page-hero">
         <Image
-          src={domains[0].image}
-          alt={domains[0].imageAlt}
+          src={domains[0]?.image ?? "/images/logo-icon.png"}
+          alt={domains[0]?.imageAlt ?? "Zenith Academy domains"}
           fill
           priority
           sizes="100vw"
           className="page-hero-bg"
         />
         <div className="page-hero-overlay" />
-        <div className="section-inner page-hero-content">
+        <div className="section-inner page-hero-content" data-animate="hero">
           <p className="eyebrow">Learning domains</p>
           <h1>Domains that give students a clear learning direction.</h1>
           <p>
-            Compare the workflows, outcomes, and current courses in each
-            learning track.
+            Compare workflows, outcomes, and current courses in each track —
+            then join the community or enroll.
           </p>
         </div>
       </section>
 
-      <section className="section-band">
-        <div className="section-inner domain-detail-list">
-          {domains.map((domain) => (
-            <article className="detail-page-card" key={domain.slug}>
-              <div className="detail-page-header">
-                <div>
-                  <span className="card-kicker">Domain</span>
-                  <h2>{domain.name}</h2>
-                  <p className="strong-line">{domain.line}</p>
-                </div>
-                <a className="button button-primary" href="/courses">
-                  View courses
-                </a>
-              </div>
+      <section className="section-band muted-band">
+        <div className="section-inner domain-detail-list" data-animate-stagger>
+          {domains.map((domain, index) => {
+            const domainCourses = courses.filter((course) =>
+              domain.courses.includes(course.title)
+            );
 
-              <div className="content-columns">
-                <div>
-                  <div className="detail-media">
-                    <Image
-                      src={domain.image}
-                      alt={domain.imageAlt}
-                      width={760}
-                      height={460}
-                      sizes="(max-width: 900px) 100vw, 60vw"
-                    />
-                  </div>
-                  <h3>About this domain</h3>
-                  <p>{domain.about}</p>
-                  <p>{domain.outcome}</p>
-                </div>
-                <div>
-                  <h3>What you&apos;ll find here</h3>
-                  <ul className="theme-list">
-                    {domain.themes.map((theme) => (
-                      <li key={theme}>{theme}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div className="course-table compact-table" role="table">
-                <div className="table-row table-head" role="row">
-                  <span role="columnheader">Course</span>
-                  <span role="columnheader">Duration</span>
-                  <span role="columnheader">Mode</span>
-                  <span role="columnheader">Status</span>
-                </div>
-                {courses
-                  .filter((course) => domain.courses.includes(course.title))
-                  .map((course) => (
-                    <div className="table-row" role="row" key={course.title}>
-                      <span role="cell">{course.title}</span>
-                      <span role="cell">{course.duration}</span>
-                      <span role="cell">{course.mode}</span>
-                      <span role="cell">
-                        <strong>{course.status}</strong>
-                      </span>
+            return (
+              <article
+                className={`detail-page-card detail-accent-${(index % 3) + 1}`}
+                key={domain.slug}
+              >
+                <div className="detail-page-header">
+                  <div>
+                    <div className="detail-kicker-row">
+                      <DomainIcon
+                        slug={domain.slug}
+                        name={domain.name}
+                        className="detail-icon"
+                      />
+                      <span className="card-kicker">Domain</span>
                     </div>
-                  ))}
-              </div>
-            </article>
-          ))}
+                    <h2>{domain.name}</h2>
+                    <p className="strong-line">{domain.line}</p>
+                  </div>
+                  <div className="detail-header-actions">
+                    <a
+                      className="button button-primary"
+                      href={`/communities?domain=${encodeURIComponent(domain.slug)}`}
+                    >
+                      Join community
+                    </a>
+                    <a className="button button-outline" href="/courses">
+                      View courses
+                    </a>
+                  </div>
+                </div>
+
+                <div className="content-columns">
+                  <div>
+                    <div className="detail-media">
+                      <Image
+                        src={domain.image}
+                        alt={domain.imageAlt}
+                        width={760}
+                        height={460}
+                        sizes="(max-width: 900px) 100vw, 60vw"
+                      />
+                    </div>
+                    <h3>About this domain</h3>
+                    <p>{domain.about}</p>
+                    <p>{domain.outcome}</p>
+                  </div>
+                  <aside className="side-panel">
+                    <h3>What you&apos;ll find here</h3>
+                    <ul className="chip-list vertical-chips">
+                      {domain.themes.map((theme) => (
+                        <li key={theme}>{theme}</li>
+                      ))}
+                    </ul>
+                  </aside>
+                </div>
+
+                {domainCourses.length ? (
+                  <div className="related-course-grid">
+                    {domainCourses.map((course) => (
+                      <article className="mini-course-card" key={course.title}>
+                        <div className="feature-tile-top">
+                          <DomainIcon kind="course" className="meta-icon large" />
+                          <span className="status-chip">{course.status}</span>
+                        </div>
+                        <h3>{course.title}</h3>
+                        <div className="meta-chips compact">
+                          <span>{course.duration}</span>
+                          <span>{course.mode}</span>
+                        </div>
+                        <a
+                          className="button button-primary"
+                          href={
+                            course.slug
+                              ? `/registration?course=${encodeURIComponent(course.slug)}`
+                              : "/registration"
+                          }
+                        >
+                          Enroll now
+                        </a>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="empty-note">Courses for this domain are opening soon.</p>
+                )}
+              </article>
+            );
+          })}
         </div>
       </section>
     </main>

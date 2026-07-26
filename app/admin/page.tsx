@@ -8,7 +8,7 @@ export default async function AdminPage() {
   const session = await requireAdmin();
 
   try {
-    const [courses, domains, registrations, media, settings, emailLogs] =
+    const [courses, domains, registrations, communityInterests, media, settings, emailLogs] =
       await Promise.all([
         prisma.course.findMany({
           include: { domain: { select: { name: true } } },
@@ -20,6 +20,10 @@ export default async function AdminPage() {
         prisma.registration.findMany({
           orderBy: { createdAt: "desc" },
           take: 200,
+        }),
+        prisma.communityInterest.findMany({
+          orderBy: { createdAt: "desc" },
+          take: 300,
         }),
         prisma.mediaAsset.findMany({
           orderBy: { createdAt: "desc" },
@@ -82,9 +86,20 @@ export default async function AdminPage() {
           courseTitle: registration.courseTitle,
           paymentMethod: registration.paymentMethod,
           receiptUrl: registration.receiptUrl,
+          joinCommunity: registration.joinCommunity,
           status: registration.status,
           adminNotes: registration.adminNotes ?? "",
           createdAt: registration.createdAt.toISOString(),
+        }))}
+        communityInterests={communityInterests.map((interest) => ({
+          id: interest.id,
+          fullName: interest.fullName,
+          email: interest.email,
+          phone: interest.phone,
+          domainName: interest.domainName,
+          source: interest.source,
+          notes: interest.notes,
+          createdAt: interest.createdAt.toISOString(),
         }))}
         media={media.map((asset) => ({
           ...asset,
@@ -109,6 +124,7 @@ export default async function AdminPage() {
         courses={[]}
         domains={[]}
         registrations={[]}
+        communityInterests={[]}
         media={[]}
         emailLogs={[]}
         settings={{}}
