@@ -447,13 +447,21 @@ export default function AdminDashboard(props: DashboardProps) {
       const cloudResult = await readJsonResponse<{
         public_id?: string;
         secure_url?: string;
-        error?: string | { message?: string };
       }>(cloudResponse);
 
-      const cloudError =
-        typeof cloudResult.error === "string"
-          ? cloudResult.error
-          : cloudResult.error?.message;
+      const cloudError = (() => {
+        const value = (cloudResult as { error?: unknown }).error;
+        if (typeof value === "string") return value;
+        if (
+          value &&
+          typeof value === "object" &&
+          "message" in value &&
+          typeof (value as { message: unknown }).message === "string"
+        ) {
+          return (value as { message: string }).message;
+        }
+        return undefined;
+      })();
 
       if (!cloudResponse.ok || !cloudResult.public_id || !cloudResult.secure_url) {
         notify({
