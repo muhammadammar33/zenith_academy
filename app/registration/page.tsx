@@ -16,35 +16,12 @@ import {
 } from "../../lib/education";
 import { useToast } from "../../components/ToastProvider";
 import DomainIcon from "../../components/DomainIcon";
-
-const paymentDetails = {
-  "Bank transfer": {
-    title: "Bank transfer details",
-    rows: [
-      ["Account title", "Zenith Academy"],
-      ["Bank", "Add active bank name"],
-      ["Account / IBAN", "Add account number or IBAN"],
-    ],
-  },
-  JazzCash: {
-    title: "JazzCash details",
-    rows: [
-      ["Account title", "Zenith Academy"],
-      ["Mobile account", "Add JazzCash number"],
-      ["Reference", "Student full name"],
-    ],
-  },
-  EasyPaisa: {
-    title: "EasyPaisa details",
-    rows: [
-      ["Account title", "Zenith Academy"],
-      ["Mobile account", "Add EasyPaisa number"],
-      ["Reference", "Student full name"],
-    ],
-  },
-};
-
-type PaymentMethod = keyof typeof paymentDetails;
+import {
+  PAYMENT_METHODS,
+  defaultPaymentMethods,
+  type PaymentMethod,
+  type PaymentMethodsConfig,
+} from "../../lib/payment";
 
 type CourseOption = {
   id: string;
@@ -87,6 +64,9 @@ function RegistrationForm() {
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [selectedCourseTitle, setSelectedCourseTitle] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodsConfig>(
+    defaultPaymentMethods
+  );
   const [receipt, setReceipt] = useState<UploadedReceipt | null>(null);
   const [receiptUploading, setReceiptUploading] = useState(false);
   const [registrationOpen, setRegistrationOpen] = useState(false);
@@ -107,11 +87,15 @@ function RegistrationForm() {
           registration: {
             isOpen: boolean;
             paymentInstructions: string;
+            paymentMethods?: PaymentMethodsConfig;
           };
         }) => {
           setCourses(result.courses);
           setRegistrationOpen(result.registration.isOpen);
           setPaymentInstructions(result.registration.paymentInstructions);
+          if (result.registration.paymentMethods) {
+            setPaymentMethods(result.registration.paymentMethods);
+          }
           setRegistrationReady(true);
 
           if (!courseParam) {
@@ -645,7 +629,7 @@ function RegistrationForm() {
                   <option value="" disabled>
                     Select method
                   </option>
-                  {Object.keys(paymentDetails).map((method) => (
+                  {PAYMENT_METHODS.map((method) => (
                     <option key={method}>{method}</option>
                   ))}
                 </select>
@@ -653,12 +637,12 @@ function RegistrationForm() {
 
               {paymentMethod ? (
                 <div className="payment-detail-box">
-                  <h3>{paymentDetails[paymentMethod].title}</h3>
+                  <h3>{paymentMethods[paymentMethod].title}</h3>
                   <dl>
-                    {paymentDetails[paymentMethod].rows.map(([label, value]) => (
-                      <div key={label}>
-                        <dt>{label}</dt>
-                        <dd>{value}</dd>
+                    {paymentMethods[paymentMethod].fields.map((field) => (
+                      <div key={field.label}>
+                        <dt>{field.label}</dt>
+                        <dd>{field.value}</dd>
                       </div>
                     ))}
                   </dl>

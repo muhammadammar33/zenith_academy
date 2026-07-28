@@ -95,6 +95,32 @@ async function main() {
         isOpen: true,
         paymentInstructions:
           "Choose a payment method to view the active account details.",
+        paymentMethods: {
+          "Bank transfer": {
+            title: "Bank transfer details",
+            fields: [
+              { label: "Account title", value: "Zenith Academy" },
+              { label: "Bank", value: "Add active bank name" },
+              { label: "Account / IBAN", value: "Add account number or IBAN" },
+            ],
+          },
+          JazzCash: {
+            title: "JazzCash details",
+            fields: [
+              { label: "Account title", value: "Zenith Academy" },
+              { label: "Mobile account", value: "Add JazzCash number" },
+              { label: "Reference", value: "Student full name" },
+            ],
+          },
+          EasyPaisa: {
+            title: "EasyPaisa details",
+            fields: [
+              { label: "Account title", value: "Zenith Academy" },
+              { label: "Mobile account", value: "Add EasyPaisa number" },
+              { label: "Reference", value: "Student full name" },
+            ],
+          },
+        },
       },
     },
   });

@@ -2184,6 +2184,16 @@ body.nav-open {
   font-size: 0.84rem;
 }
 
+.admin-image-preview img {
+  display: block;
+  width: min(100%, 280px);
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  object-fit: cover;
+  background: color-mix(in srgb, var(--line) 35%, transparent);
+}
+
 .admin-media-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2216,6 +2226,36 @@ body.nav-open {
 
 .admin-settings {
   max-width: 720px;
+}
+
+.admin-payment-methods {
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.admin-payment-methods > h3 {
+  margin: 0;
+}
+
+.admin-payment-methods > p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.admin-payment-method {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--soft);
+  padding: 1rem;
+}
+
+.admin-payment-method legend {
+  padding: 0 0.35rem;
+  font-weight: 600;
 }
 
 .status-badge {

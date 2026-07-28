@@ -4,6 +4,10 @@ import {
   courses as fallbackCourses,
   domains as fallbackDomains,
 } from "../app/content";
+import {
+  defaultPaymentMethods,
+  normalizePaymentMethods,
+} from "./payment";
 import { prisma } from "./prisma";
 
 const fallbackCourseData = fallbackCourses.map((course) => ({
@@ -19,6 +23,13 @@ const fallbackDomainData = fallbackDomains.map((domain) => ({
   ...domain,
   id: "",
 }));
+
+const defaultRegistrationSetting = {
+  isOpen: false,
+  paymentInstructions:
+    "Choose a payment method to view the active account details.",
+  paymentMethods: defaultPaymentMethods,
+};
 
 export async function getPublicDomains() {
   if (!process.env.DATABASE_URL) {
@@ -94,6 +105,7 @@ export async function getPublicCourses() {
 export async function getRegistrationSetting() {
   if (!process.env.DATABASE_URL) {
     return {
+      ...defaultRegistrationSetting,
       isOpen: false,
       paymentInstructions:
         "Registration opens after the academy completes its enrollment setup.",
@@ -116,7 +128,8 @@ export async function getRegistrationSetting() {
         paymentInstructions:
           typeof value.paymentInstructions === "string"
             ? value.paymentInstructions
-            : "Choose a payment method to view the active account details.",
+            : defaultRegistrationSetting.paymentInstructions,
+        paymentMethods: normalizePaymentMethods(value.paymentMethods),
       };
     }
   } catch {
@@ -124,6 +137,7 @@ export async function getRegistrationSetting() {
   }
 
   return {
+    ...defaultRegistrationSetting,
     isOpen: false,
     paymentInstructions:
       "Registration is temporarily unavailable while the enrollment service reconnects.",

@@ -3,6 +3,12 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "../ToastProvider";
+import {
+  PAYMENT_METHODS,
+  defaultPaymentMethods,
+  normalizePaymentMethods,
+  type PaymentMethodsConfig,
+} from "../../lib/payment";
 
 type Domain = {
   id: string;
@@ -155,6 +161,29 @@ const ADMIN_TABS: { id: AdminTab; label: string }[] = [
   { id: "email", label: "Email" },
 ];
 
+function AdminImagePreview({ url, alt }: { url: string; alt: string }) {
+  const src = url.trim();
+  if (!src) {
+    return null;
+  }
+
+  return (
+    <div className="admin-image-preview">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={alt.trim() || "Selected image preview"}
+        onError={(event) => {
+          event.currentTarget.style.display = "none";
+        }}
+        onLoad={(event) => {
+          event.currentTarget.style.display = "";
+        }}
+      />
+    </div>
+  );
+}
+
 export default function AdminDashboard(props: DashboardProps) {
   const router = useRouter();
   const { notify } = useToast();
@@ -162,6 +191,8 @@ export default function AdminDashboard(props: DashboardProps) {
   const [busy, setBusy] = useState(false);
   const [domainForm, setDomainForm] = useState(emptyDomain);
   const [courseForm, setCourseForm] = useState(emptyCourse);
+  const [courseImagePreview, setCourseImagePreview] = useState("");
+  const [domainImagePreview, setDomainImagePreview] = useState("");
   const registrationSetting =
     typeof props.settings.registration === "object" &&
     props.settings.registration !== null
@@ -174,6 +205,9 @@ export default function AdminDashboard(props: DashboardProps) {
     typeof registrationSetting.paymentInstructions === "string"
       ? registrationSetting.paymentInstructions
       : "Choose a payment method to view the active account details."
+  );
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodsConfig>(
+    normalizePaymentMethods(registrationSetting.paymentMethods)
   );
 
   const pendingCount = useMemo(
@@ -331,13 +365,13 @@ export default function AdminDashboard(props: DashboardProps) {
     };
     setBusy(false);
 
-    if (!response.ok || !result.asset) {
+    if (!response.ok || !result.asset?.secureUrl) {
       notify({
         title: "Upload failed",
         message: result.error ?? "Image upload failed.",
         tone: "error",
       });
-      return;
+      return false;
     }
 
     onUploaded(result.asset.secureUrl);
@@ -347,6 +381,7 @@ export default function AdminDashboard(props: DashboardProps) {
       tone: "success",
     });
     router.refresh();
+    return true;
   }
 
   async function saveDomain(event: FormEvent<HTMLFormElement>) {
@@ -370,6 +405,7 @@ export default function AdminDashboard(props: DashboardProps) {
     );
 
     if (saved) setDomainForm(emptyDomain);
+    if (saved) setDomainImagePreview("");
   }
 
   async function saveCourse(event: FormEvent<HTMLFormElement>) {
@@ -398,10 +434,12 @@ export default function AdminDashboard(props: DashboardProps) {
     );
 
     if (saved) setCourseForm(emptyCourse);
+    if (saved) setCourseImagePreview("");
   }
 
   function editDomain(domain: Domain) {
     setActiveTab("domains");
+    setDomainImagePreview("");
     setDomainForm({
       ...domain,
       themes: domain.themes.join("\n"),
@@ -411,6 +449,7 @@ export default function AdminDashboard(props: DashboardProps) {
 
   function editCourse(course: Course) {
     setActiveTab("courses");
+    setCourseImagePreview("");
     setCourseForm({
       ...course,
       fee: String(course.fee),
@@ -953,28 +992,56 @@ export default function AdminDashboard(props: DashboardProps) {
                 Course image
                 <input
                   type="file"
-                  accept="image/png,image/jpeg,image/webp"
+                  accept="image/png,image/jpeg,image/jpg,image/webp,.jpg,.jpeg,.png,.webp"
                   onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    if (file) {
-                      void uploadImage(file, "course-images", (imageUrl) =>
-                        setCourseForm((current) => ({ ...current, imageUrl }))
-                      );
+                    const input = event.target;
+                    const file = input.files?.[0];
+                    if (!file) {
+                      return;
                     }
+
+                    if (courseImagePreview.startsWith("blob:")) {
+                      URL.revokeObjectURL(courseImagePreview);
+                    }
+
+                    const localPreview = URL.createObjectURL(file);
+                    setCourseImagePreview(localPreview);
+
+                    void uploadImage(file, "course-images", (imageUrl) => {
+                      setCourseForm((current) => ({ ...current, imageUrl }));
+                      setCourseImagePreview("");
+                      URL.revokeObjectURL(localPreview);
+                      input.value = "";
+                    }).then((ok) => {
+                      if (!ok) {
+                        setCourseImagePreview("");
+                        URL.revokeObjectURL(localPreview);
+                        input.value = "";
+                      }
+                    });
                   }}
                 />
               </label>
               <label>
                 Image URL
                 <input
-                  type="url"
+                  type="text"
                   value={courseForm.imageUrl}
-                  onChange={(event) =>
-                    setCourseForm({ ...courseForm, imageUrl: event.target.value })
-                  }
+                  onChange={(event) => {
+                    setCourseImagePreview("");
+                    setCourseForm({
+                      ...courseForm,
+                      imageUrl: event.target.value,
+                    });
+                  }}
+                  placeholder="/images/example.JPG or https://..."
                   required
                 />
               </label>
+              <AdminImagePreview
+                url={courseImagePreview || courseForm.imageUrl}
+                alt={courseForm.imageAlt}
+              />
               <label>
                 Image description
                 <input
@@ -1006,7 +1073,10 @@ export default function AdminDashboard(props: DashboardProps) {
                   <button
                     className="button admin-secondary-button"
                     type="button"
-                    onClick={() => setCourseForm(emptyCourse)}
+                    onClick={() => {
+                      setCourseForm(emptyCourse);
+                      setCourseImagePreview("");
+                    }}
                   >
                     Cancel edit
                   </button>
@@ -1130,28 +1200,56 @@ export default function AdminDashboard(props: DashboardProps) {
                 Domain image
                 <input
                   type="file"
-                  accept="image/png,image/jpeg,image/webp"
+                  accept="image/png,image/jpeg,image/jpg,image/webp,.jpg,.jpeg,.png,.webp"
                   onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    if (file) {
-                      void uploadImage(file, "domain-images", (imageUrl) =>
-                        setDomainForm((current) => ({ ...current, imageUrl }))
-                      );
+                    const input = event.target;
+                    const file = input.files?.[0];
+                    if (!file) {
+                      return;
                     }
+
+                    if (domainImagePreview.startsWith("blob:")) {
+                      URL.revokeObjectURL(domainImagePreview);
+                    }
+
+                    const localPreview = URL.createObjectURL(file);
+                    setDomainImagePreview(localPreview);
+
+                    void uploadImage(file, "domain-images", (imageUrl) => {
+                      setDomainForm((current) => ({ ...current, imageUrl }));
+                      setDomainImagePreview("");
+                      URL.revokeObjectURL(localPreview);
+                      input.value = "";
+                    }).then((ok) => {
+                      if (!ok) {
+                        setDomainImagePreview("");
+                        URL.revokeObjectURL(localPreview);
+                        input.value = "";
+                      }
+                    });
                   }}
                 />
               </label>
               <label>
                 Image URL
                 <input
-                  type="url"
+                  type="text"
                   value={domainForm.imageUrl}
-                  onChange={(event) =>
-                    setDomainForm({ ...domainForm, imageUrl: event.target.value })
-                  }
+                  onChange={(event) => {
+                    setDomainImagePreview("");
+                    setDomainForm({
+                      ...domainForm,
+                      imageUrl: event.target.value,
+                    });
+                  }}
+                  placeholder="/images/example.JPG or https://..."
                   required
                 />
               </label>
+              <AdminImagePreview
+                url={domainImagePreview || domainForm.imageUrl}
+                alt={domainForm.imageAlt}
+              />
               <label>
                 Image description
                 <input
@@ -1195,7 +1293,10 @@ export default function AdminDashboard(props: DashboardProps) {
                   <button
                     className="button admin-secondary-button"
                     type="button"
-                    onClick={() => setDomainForm(emptyDomain)}
+                    onClick={() => {
+                      setDomainForm(emptyDomain);
+                      setDomainImagePreview("");
+                    }}
                   >
                     Cancel edit
                   </button>
@@ -1307,6 +1408,7 @@ export default function AdminDashboard(props: DashboardProps) {
                     registration: {
                       isOpen: registrationOpen,
                       paymentInstructions,
+                      paymentMethods,
                     },
                   }),
                 },
@@ -1327,8 +1429,85 @@ export default function AdminDashboard(props: DashboardProps) {
               <textarea
                 value={paymentInstructions}
                 onChange={(event) => setPaymentInstructions(event.target.value)}
+                placeholder="Shown above the payment method selector on the registration form"
               />
             </label>
+
+            <div className="admin-payment-methods">
+              <h3>Payment account details</h3>
+              <p>
+                These details appear on the registration form after a student
+                chooses a payment method.
+              </p>
+              {PAYMENT_METHODS.map((method) => (
+                <fieldset key={method} className="admin-payment-method">
+                  <legend>{method}</legend>
+                  <label>
+                    Section title
+                    <input
+                      value={paymentMethods[method].title}
+                      onChange={(event) =>
+                        setPaymentMethods({
+                          ...paymentMethods,
+                          [method]: {
+                            ...paymentMethods[method],
+                            title: event.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                  {paymentMethods[method].fields.map((field, index) => (
+                    <div className="form-row" key={`${method}-${field.label}-${index}`}>
+                      <label>
+                        Label
+                        <input
+                          value={field.label}
+                          onChange={(event) => {
+                            const fields = paymentMethods[method].fields.map(
+                              (item, itemIndex) =>
+                                itemIndex === index
+                                  ? { ...item, label: event.target.value }
+                                  : item
+                            );
+                            setPaymentMethods({
+                              ...paymentMethods,
+                              [method]: { ...paymentMethods[method], fields },
+                            });
+                          }}
+                        />
+                      </label>
+                      <label>
+                        Value
+                        <input
+                          value={field.value}
+                          onChange={(event) => {
+                            const fields = paymentMethods[method].fields.map(
+                              (item, itemIndex) =>
+                                itemIndex === index
+                                  ? { ...item, value: event.target.value }
+                                  : item
+                            );
+                            setPaymentMethods({
+                              ...paymentMethods,
+                              [method]: { ...paymentMethods[method], fields },
+                            });
+                          }}
+                        />
+                      </label>
+                    </div>
+                  ))}
+                </fieldset>
+              ))}
+              <button
+                type="button"
+                className="button admin-secondary-button"
+                onClick={() => setPaymentMethods(defaultPaymentMethods)}
+              >
+                Reset payment details
+              </button>
+            </div>
+
             <button className="button button-primary" disabled={busy}>
               Save settings
             </button>

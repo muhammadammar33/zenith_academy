@@ -2,8 +2,8 @@ export const domains = [
   {
     name: "Technology",
     slug: "technology",
-    image: "https://unsplash.com/photos/HKnvq4krutI/download?force=true",
-    imageAlt: "Male students coding on laptops in a classroom",
+    image: "/images/technology.JPG",
+    imageAlt: "Students collaborating on laptops at a tech workshop",
     line: "Practice software, automation, data, and digital product workflows.",
     about:
       "Technology courses cover the systems and workflows behind modern digital work. Learners study software, automation, data, and current technical practice.",
@@ -20,8 +20,8 @@ export const domains = [
   {
     name: "Business",
     slug: "business",
-    image: "https://unsplash.com/photos/7cahomYTo1U/download?force=true",
-    imageAlt: "Four men working in a business meeting room with laptops",
+    image: "/images/registeration.JPG",
+    imageAlt: "Young professionals building a project with a laptop and prototype",
     line: "Study how teams evaluate markets, communicate, and make decisions.",
     about:
       "Business courses introduce the tools used to assess organizations, markets, and professional decisions. Sessions cover entrepreneurship, management, communication, and business analysis.",
@@ -38,8 +38,8 @@ export const domains = [
   {
     name: "Leadership and humanities",
     slug: "leadership-humanities",
-    image: "https://unsplash.com/photos/uzePm5Hy-Q0/download?force=true",
-    imageAlt: "Male instructor speaking to students in a classroom",
+    image: "/images/instructor.JPG",
+    imageAlt: "Students attending a leadership and tech conference session",
     line: "Develop the judgment, character, and communication required to lead.",
     about:
       "Leadership and humanities examine the moral, intellectual, and social foundations of responsible action. Learners practice critical thinking, communication, and civic judgment.",
@@ -59,8 +59,8 @@ export const courses = [
   {
     title: "New weekend courses",
     domain: "Technology",
-    image: "https://unsplash.com/photos/HKnvq4krutI/download?force=true",
-    imageAlt: "Young men using laptops during a coding class",
+    image: "/images/technology.JPG",
+    imageAlt: "Students coding together during a weekend workshop",
     duration: "4–6 weeks",
     mode: "In person / online",
     status: "Upcoming",
@@ -87,8 +87,8 @@ export const courses = [
   {
     title: "Practitioner-led workshops",
     domain: "Leadership and humanities",
-    image: "https://unsplash.com/photos/uzePm5Hy-Q0/download?force=true",
-    imageAlt: "Male instructor leading a classroom discussion",
+    image: "/images/instructor.JPG",
+    imageAlt: "Audience and speakers at a practitioner-led academy session",
     duration: "6 sessions",
     mode: "Weekend",
     status: "Opening soon",
@@ -115,8 +115,8 @@ export const courses = [
   {
     title: "Domain-focused cohorts",
     domain: "Business",
-    image: "https://unsplash.com/photos/7cahomYTo1U/download?force=true",
-    imageAlt: "Men collaborating around laptops in a meeting room",
+    image: "/images/registeration.JPG",
+    imageAlt: "Team collaborating on a laptop during a cohort workshop",
     duration: "Short course",
     mode: "Hybrid",
     status: "Upcoming",
@@ -202,19 +202,15 @@ export const communitySections = [
 
 export const siteImages = {
   homeHero: {
-    src: "https://unsplash.com/photos/HKnvq4krutI/download?force=true",
-    alt: "Male students working on laptops in a classroom",
+    src: "/images/home_hero.JPG",
+    alt: "Capital Youth Expo audience filling a large auditorium",
   },
-  about:
-    "https://unsplash.com/photos/tgANYv9U10Q/download?force=true",
-  aboutAlt: "Male student sitting outdoors with a laptop and backpack",
-  instructor:
-    "https://unsplash.com/photos/uzePm5Hy-Q0/download?force=true",
-  instructorAlt: "Male instructor teaching in a classroom",
-  registration:
-    "https://unsplash.com/photos/tgANYv9U10Q/download?force=true",
-  registrationAlt: "Male student completing registration on a laptop",
-  books:
-    "https://unsplash.com/photos/xKR1_6Tfclo/download?force=true",
-  booksAlt: "Young man sitting with books",
+  about: "/images/student.JPG",
+  aboutAlt: "Students collaborating on laptops at a learning event",
+  instructor: "/images/instructor.JPG",
+  instructorAlt: "Students attending a Future Vision and Codzilla conference session",
+  registration: "/images/registeration.JPG",
+  registrationAlt: "Students building a hardware project at a registration and workshop desk",
+  books: "/images/books.JPG",
+  booksAlt: "Students working on electronics and a circuit board at a hands-on workshop",
 };

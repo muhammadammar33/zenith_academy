@@ -9,7 +9,27 @@ import { prisma } from "../../../../lib/prisma";
 export const runtime = "nodejs";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/pjpeg",
+  "image/png",
+  "image/webp",
+]);
+const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
+
+function isAllowedImage(file: File) {
+  const type = file.type.trim().toLowerCase();
+  if (type && IMAGE_TYPES.has(type)) {
+    return true;
+  }
+
+  const extension = file.name.includes(".")
+    ? `.${file.name.split(".").pop()?.toLowerCase() ?? ""}`
+    : "";
+
+  return IMAGE_EXTENSIONS.has(extension);
+}
 
 export async function POST(request: Request) {
   if (!(await getAdminSession())) {
@@ -26,9 +46,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Choose an image to upload." }, { status: 400 });
   }
 
-  if (!IMAGE_TYPES.has(file.type) || file.size > MAX_FILE_SIZE) {
+  if (file.size <= 0) {
     return NextResponse.json(
-      { error: "Upload a JPG, PNG, or WebP image no larger than 10MB." },
+      { error: "The selected file is empty." },
+      { status: 400 }
+    );
+  }
+
+  if (file.size > MAX_FILE_SIZE) {
+    return NextResponse.json(
+      {
+        error:
+          "Image must be 10MB or smaller (Cloudinary limit). Put large files in public/images and paste /images/your-file.JPG in Image URL instead of uploading.",
+      },
+      { status: 400 }
+    );
+  }
+
+  if (!isAllowedImage(file)) {
+    return NextResponse.json(
+      {
+        error:
+          "Upload a JPG, PNG, or WebP image. If this keeps failing, rename the file with a .jpg or .png extension.",
+      },
       { status: 400 }
     );
   }

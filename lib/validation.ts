@@ -138,6 +138,11 @@ export const receiptReferenceSchema = z.object({
   resourceType: z.enum(["image", "raw"]),
 });
 
+const imageSrc = z.union([
+  z.string().url(),
+  z.string().regex(/^\/images\/.+/i, "Use a full URL or a /images/ path."),
+]);
+
 export const domainSchema = z.object({
   id: z.string().cuid().optional(),
   name: requiredText.max(100),
@@ -150,7 +155,7 @@ export const domainSchema = z.object({
   line: requiredText,
   about: longText,
   outcome: longText,
-  imageUrl: z.string().url(),
+  imageUrl: imageSrc,
   imageAlt: requiredText.max(200),
   themes: z.array(requiredText.max(120)).min(1).max(20),
   sortOrder: z.coerce.number().int().min(0).max(10_000).default(0),
@@ -176,7 +181,7 @@ export const courseSchema = z.object({
   status: requiredText.max(80),
   fee: z.coerce.number().int().min(0).max(10_000_000),
   seats: requiredText.max(80),
-  imageUrl: z.string().url(),
+  imageUrl: imageSrc,
   imageAlt: requiredText.max(200),
   prerequisites: z.array(requiredText.max(160)).max(30),
   sessions: z.array(requiredText.max(200)).min(1).max(30),
@@ -194,6 +199,23 @@ export const siteSettingsSchema = z.object({
     .object({
       isOpen: z.boolean(),
       paymentInstructions: z.string().trim().max(10_000),
+      paymentMethods: z
+        .record(
+          z.string(),
+          z.object({
+            title: z.string().trim().min(1).max(120),
+            fields: z
+              .array(
+                z.object({
+                  label: z.string().trim().min(1).max(80),
+                  value: z.string().trim().min(1).max(200),
+                })
+              )
+              .min(1)
+              .max(8),
+          })
+        )
+        .optional(),
     })
     .optional(),
 });

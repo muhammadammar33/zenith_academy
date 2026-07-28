@@ -229,6 +229,7 @@ Leadership) with or without course enrollment.
 - Course registration includes a “join this domain community” checkbox
 - Course enroll links open `/registration?course=<slug>` with the course preselected
 - Admin → **Communities** lists interests from both the community form and course registration
+- Admin → **Settings** controls registration open/closed, payment instructions, and Bank transfer / JazzCash / EasyPaisa account details shown on the registration form
 
 After pull, run `npm run db:deploy` so the communities migration applies.
 
