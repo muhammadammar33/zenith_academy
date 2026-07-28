@@ -1,6 +1,6 @@
 import "server-only";
 
-import { v2 as mediaProvider, type UploadApiResponse } from "cloudinary";
+import { v2 as mediaProvider } from "cloudinary";
 
 function mediaConfig() {
   return {
@@ -28,12 +28,14 @@ function configureMedia() {
   });
 }
 
-export function createSignedReceiptUpload() {
+export type AdminImageFolder = "course-images" | "domain-images";
+
+function createSignedUpload(subfolder: string) {
   configureMedia();
 
   const { cloudName, apiKey, folder: baseFolder } = mediaConfig();
   const timestamp = Math.floor(Date.now() / 1000);
-  const folder = `${baseFolder}/registration-receipts`;
+  const folder = `${baseFolder}/${subfolder}`;
   const apiSecret = mediaConfig().apiSecret!;
 
   return {
@@ -44,8 +46,20 @@ export function createSignedReceiptUpload() {
       apiSecret
     ),
     apiKey: apiKey!,
-    uploadUrl: `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+    uploadUrl: `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
   };
+}
+
+export function createSignedReceiptUpload() {
+  const signed = createSignedUpload("registration-receipts");
+  return {
+    ...signed,
+    uploadUrl: signed.uploadUrl.replace("/image/upload", "/auto/upload"),
+  };
+}
+
+export function createSignedAdminImageUpload(folder: AdminImageFolder) {
+  return createSignedUpload(folder);
 }
 
 export async function verifyReceiptUpload(
@@ -74,35 +88,35 @@ export async function verifyReceiptUpload(
   };
 }
 
-export async function uploadFile(
-  file: File,
-  folder: "course-images" | "domain-images" | "registration-receipts"
+export async function verifyAdminImageUpload(
+  publicId: string,
+  folder: AdminImageFolder
 ) {
   configureMedia();
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const baseFolder = mediaConfig().folder;
-
-  return new Promise<UploadApiResponse>((resolve, reject) => {
-    const stream = mediaProvider.uploader.upload_stream(
-      {
-        folder: `${baseFolder}/${folder}`,
-        resource_type: "auto",
-        use_filename: false,
-        unique_filename: true,
-      },
-      (error, result) => {
-        if (error || !result) {
-          reject(error ?? new Error("Media upload failed."));
-          return;
-        }
-
-        resolve(result);
-      }
-    );
-
-    stream.end(buffer);
+  const expectedFolder = `${mediaConfig().folder}/${folder}/`;
+  const resource = await mediaProvider.api.resource(publicId, {
+    resource_type: "image",
   });
+  const allowedFormats = new Set(["jpg", "jpeg", "png", "webp"]);
+
+  if (
+    !resource.public_id.startsWith(expectedFolder) ||
+    resource.bytes > 10 * 1024 * 1024 ||
+    !allowedFormats.has(String(resource.format).toLowerCase())
+  ) {
+    throw new Error("The uploaded image is invalid.");
+  }
+
+  return {
+    publicId: resource.public_id as string,
+    secureUrl: resource.secure_url as string,
+    resourceType: String(resource.resource_type ?? "image"),
+    format: String(resource.format ?? ""),
+    width: Number(resource.width ?? 0),
+    height: Number(resource.height ?? 0),
+    bytes: Number(resource.bytes ?? 0),
+  };
 }
 
 export async function deleteMediaAsset(publicId: string) {

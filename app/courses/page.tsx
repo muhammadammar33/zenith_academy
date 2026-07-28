@@ -9,7 +9,7 @@ export default async function CoursesPage() {
     <main>
       <section className="page-hero">
         <Image
-          src={courses[0]?.image ?? "/images/logo-icon.png"}
+          src={"/images/courses.JPG"}
           alt={courses[0]?.imageAlt ?? "Zenith Academy courses"}
           fill
           priority

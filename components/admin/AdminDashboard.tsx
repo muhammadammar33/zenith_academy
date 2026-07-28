@@ -184,6 +184,35 @@ function AdminImagePreview({ url, alt }: { url: string; alt: string }) {
   );
 }
 
+async function readJsonResponse<T>(
+  response: Response
+): Promise<T & { error?: string }> {
+  const text = await response.text();
+  if (!text) {
+    return {
+      error:
+        response.status === 413
+          ? "Image is too large for the server. Use a file under 10MB, or paste a /images/... URL instead."
+          : "Empty response from the server.",
+    } as T & { error?: string };
+  }
+
+  try {
+    return JSON.parse(text) as T & { error?: string };
+  } catch {
+    if (response.status === 413 || /too large|entity too large/i.test(text)) {
+      return {
+        error:
+          "Image is too large for the server. Compress it under 10MB, or put it in public/images and paste /images/your-file.JPG in Image URL.",
+      } as T & { error?: string };
+    }
+
+    return {
+      error: text.slice(0, 180) || `Request failed (${response.status}).`,
+    } as T & { error?: string };
+  }
+}
+
 export default function AdminDashboard(props: DashboardProps) {
   const router = useRouter();
   const { notify } = useToast();
@@ -345,9 +374,26 @@ export default function AdminDashboard(props: DashboardProps) {
     folder: "course-images" | "domain-images",
     onUploaded: (url: string) => void
   ) {
-    const data = new FormData();
-    data.set("file", file);
-    data.set("folder", folder);
+    const maxBytes = 10 * 1024 * 1024;
+    if (file.size <= 0) {
+      notify({
+        title: "Upload failed",
+        message: "The selected file is empty.",
+        tone: "error",
+      });
+      return false;
+    }
+
+    if (file.size > maxBytes) {
+      notify({
+        title: "Upload failed",
+        message:
+          "Image must be 10MB or smaller. Compress it, or put it in public/images and paste /images/your-file.JPG in Image URL.",
+        tone: "error",
+      });
+      return false;
+    }
+
     setBusy(true);
     notify({
       title: "Uploading",
@@ -355,33 +401,112 @@ export default function AdminDashboard(props: DashboardProps) {
       tone: "info",
       durationMs: 2500,
     });
-    const response = await fetch("/api/admin/upload", {
-      method: "POST",
-      body: data,
-    });
-    const result = (await response.json()) as {
-      error?: string;
-      asset?: { secureUrl: string };
-    };
-    setBusy(false);
 
-    if (!response.ok || !result.asset?.secureUrl) {
+    try {
+      const signatureResponse = await fetch("/api/admin/upload/signature", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ folder }),
+      });
+      const signature = await readJsonResponse<{
+        error?: string;
+        timestamp?: number;
+        folder?: string;
+        signature?: string;
+        apiKey?: string;
+        uploadUrl?: string;
+      }>(signatureResponse);
+
+      if (
+        !signatureResponse.ok ||
+        !signature.timestamp ||
+        !signature.folder ||
+        !signature.signature ||
+        !signature.apiKey ||
+        !signature.uploadUrl
+      ) {
+        notify({
+          title: "Upload failed",
+          message: signature.error ?? "Image upload is unavailable.",
+          tone: "error",
+        });
+        return false;
+      }
+
+      const uploadData = new FormData();
+      uploadData.set("file", file);
+      uploadData.set("api_key", signature.apiKey);
+      uploadData.set("timestamp", String(signature.timestamp));
+      uploadData.set("signature", signature.signature);
+      uploadData.set("folder", signature.folder);
+
+      const cloudResponse = await fetch(signature.uploadUrl, {
+        method: "POST",
+        body: uploadData,
+      });
+      const cloudResult = await readJsonResponse<{
+        public_id?: string;
+        secure_url?: string;
+        error?: string | { message?: string };
+      }>(cloudResponse);
+
+      const cloudError =
+        typeof cloudResult.error === "string"
+          ? cloudResult.error
+          : cloudResult.error?.message;
+
+      if (!cloudResponse.ok || !cloudResult.public_id || !cloudResult.secure_url) {
+        notify({
+          title: "Upload failed",
+          message:
+            cloudError ??
+            "Cloudinary rejected the image. Try a smaller JPG/PNG/WebP.",
+          tone: "error",
+        });
+        return false;
+      }
+
+      const response = await fetch("/api/admin/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          publicId: cloudResult.public_id,
+          folder,
+        }),
+      });
+      const result = await readJsonResponse<{
+        error?: string;
+        asset?: { secureUrl: string };
+      }>(response);
+
+      if (!response.ok || !result.asset?.secureUrl) {
+        notify({
+          title: "Upload failed",
+          message: result.error ?? "Image upload failed.",
+          tone: "error",
+        });
+        return false;
+      }
+
+      onUploaded(result.asset.secureUrl);
+      notify({
+        title: "Image uploaded",
+        message: "Image uploaded successfully.",
+        tone: "success",
+      });
+      router.refresh();
+      return true;
+    } catch (error) {
       notify({
         title: "Upload failed",
-        message: result.error ?? "Image upload failed.",
+        message:
+          error instanceof Error ? error.message : "Image upload failed.",
         tone: "error",
       });
       return false;
+    } finally {
+      setBusy(false);
     }
-
-    onUploaded(result.asset.secureUrl);
-    notify({
-      title: "Image uploaded",
-      message: "Image uploaded successfully.",
-      tone: "success",
-    });
-    router.refresh();
-    return true;
   }
 
   async function saveDomain(event: FormEvent<HTMLFormElement>) {

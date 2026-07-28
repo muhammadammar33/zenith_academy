@@ -2,89 +2,56 @@ import { NextResponse } from "next/server";
 import { getAdminSession } from "../../../../lib/auth";
 import {
   deleteMediaAsset,
-  uploadFile,
+  verifyAdminImageUpload,
+  type AdminImageFolder,
 } from "../../../../lib/media";
 import { prisma } from "../../../../lib/prisma";
 
 export const runtime = "nodejs";
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const IMAGE_TYPES = new Set([
-  "image/jpeg",
-  "image/jpg",
-  "image/pjpeg",
-  "image/png",
-  "image/webp",
-]);
-const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
-
-function isAllowedImage(file: File) {
-  const type = file.type.trim().toLowerCase();
-  if (type && IMAGE_TYPES.has(type)) {
-    return true;
-  }
-
-  const extension = file.name.includes(".")
-    ? `.${file.name.split(".").pop()?.toLowerCase() ?? ""}`
-    : "";
-
-  return IMAGE_EXTENSIONS.has(extension);
-}
 
 export async function POST(request: Request) {
   if (!(await getAdminSession())) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  const formData = await request.formData();
-  const file = formData.get("file");
-  const folderValue = formData.get("folder");
-  const folder =
-    folderValue === "domain-images" ? "domain-images" : "course-images";
+  let body: {
+    publicId?: string;
+    folder?: string;
+    altText?: string;
+  };
 
-  if (!(file instanceof File)) {
-    return NextResponse.json({ error: "Choose an image to upload." }, { status: 400 });
-  }
-
-  if (file.size <= 0) {
+  try {
+    body = (await request.json()) as typeof body;
+  } catch {
     return NextResponse.json(
-      { error: "The selected file is empty." },
+      { error: "Invalid upload payload." },
       { status: 400 }
     );
   }
 
-  if (file.size > MAX_FILE_SIZE) {
-    return NextResponse.json(
-      {
-        error:
-          "Image must be 10MB or smaller (Cloudinary limit). Put large files in public/images and paste /images/your-file.JPG in Image URL instead of uploading.",
-      },
-      { status: 400 }
-    );
-  }
+  const publicId = body.publicId?.trim() ?? "";
+  const folder: AdminImageFolder =
+    body.folder === "domain-images" ? "domain-images" : "course-images";
 
-  if (!isAllowedImage(file)) {
+  if (!publicId) {
     return NextResponse.json(
-      {
-        error:
-          "Upload a JPG, PNG, or WebP image. If this keeps failing, rename the file with a .jpg or .png extension.",
-      },
+      { error: "Uploaded image public ID is required." },
       { status: 400 }
     );
   }
 
   try {
-    const result = await uploadFile(file, folder);
+    const verified = await verifyAdminImageUpload(publicId, folder);
     const asset = await prisma.mediaAsset.create({
       data: {
-        publicId: result.public_id,
-        secureUrl: result.secure_url,
-        resourceType: result.resource_type,
-        format: result.format,
-        width: result.width,
-        height: result.height,
-        bytes: result.bytes,
-        altText: String(formData.get("altText") ?? "").trim() || null,
+        publicId: verified.publicId,
+        secureUrl: verified.secureUrl,
+        resourceType: verified.resourceType,
+        format: verified.format,
+        width: verified.width,
+        height: verified.height,
+        bytes: verified.bytes,
+        altText: body.altText?.trim() || null,
       },
     });
 
@@ -124,7 +91,10 @@ export async function DELETE(request: Request) {
 
   if (courseUses + domainUses > 0) {
     return NextResponse.json(
-      { error: "Replace this image on every course or domain before deleting it." },
+      {
+        error:
+          "Replace this image on every course or domain before deleting it.",
+      },
       { status: 409 }
     );
   }
@@ -137,7 +107,9 @@ export async function DELETE(request: Request) {
     return NextResponse.json(
       {
         error:
-          error instanceof Error ? error.message : "The media asset could not be deleted.",
+          error instanceof Error
+            ? error.message
+            : "The media asset could not be deleted.",
       },
       { status: 500 }
     );

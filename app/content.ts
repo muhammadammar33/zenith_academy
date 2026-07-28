@@ -202,7 +202,7 @@ export const communitySections = [
 
 export const siteImages = {
   homeHero: {
-    src: "/images/home_hero.JPG",
+    src: "/images/home_hero.jpeg",
     alt: "Capital Youth Expo audience filling a large auditorium",
   },
   about: "/images/student.JPG",
